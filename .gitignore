@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+
+# Environment variables
+.env
+
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+
+# Logs
+*.log
