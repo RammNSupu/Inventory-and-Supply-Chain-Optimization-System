@@ -156,6 +156,79 @@ CREATE TABLE reports (
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id)
 );
 
+SELECT * FROM branches;
+SELECT * FROM users;
+USE nova_inventory_system_db;
+SELECT * FROM products;
+
+ALTER TABLE products
+ADD COLUMN sku VARCHAR(50) UNIQUE AFTER product_id;
+
+ALTER TABLE products
+ADD COLUMN unit VARCHAR(20) AFTER category,
+ADD COLUMN default_supplier_id INT AFTER unit_price;
+
+ALTER TABLE products
+ADD CONSTRAINT fk_product_supplier
+FOREIGN KEY (default_supplier_id) REFERENCES suppliers(supplier_id);
+
+SELECT * FROM sales;
+USE nova_inventory_system_db;
+SELECT * FROM inventory WHERE branch_id = 1 AND product_id = 3;
+
+SELECT product_id, product_name FROM products;
+
+INSERT INTO inventory (branch_id, product_id, quantity_on_hand)
+VALUES (1, 1, 10);
+
+SELECT product_id FROM products;
+SELECT * FROM suppliers;
+SELECT * FROM inter_branch_transfers;
+
+INSERT INTO suppliers (supplier_name, contact_email, contact_phone, lead_time_days)
+VALUES ('Hello', 'hello@gmail.com' , 0768888880 , 6);
+
+
+DESCRIBE inter_branch_transfers;
+
+INSERT INTO inter_branch_transfers
+(from_branch_id, to_branch_id, product_id, quantity, transfer_date, status)
+VALUES (1, 2, 1, 5, CURDATE(), 'Requested');
+
+
+
+SELECT * FROM inter_branch_transfers;
+
+
+SELECT * FROM inter_branch_transfers ORDER BY transfer_date DESC;
+
+
+CREATE TABLE alerts (
+    alert_id INT AUTO_INCREMENT PRIMARY KEY,
+    branch_id INT NOT NULL,
+    product_id INT,
+    type ENUM('LowStock','Transfer','PO','Other') NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+SELECT * FROM alerts;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
