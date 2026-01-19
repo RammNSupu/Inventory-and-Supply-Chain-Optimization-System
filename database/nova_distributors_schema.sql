@@ -197,7 +197,7 @@ VALUES (1, 2, 1, 5, CURDATE(), 'Requested');
 
 
 
-SELECT * FROM inter_branch_transfers;
+
 
 
 SELECT * FROM inter_branch_transfers ORDER BY transfer_date DESC;
@@ -216,7 +216,7 @@ CREATE TABLE alerts (
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
-SELECT * FROM alerts;
+
 
 
 

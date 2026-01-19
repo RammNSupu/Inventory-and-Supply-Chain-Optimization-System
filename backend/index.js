@@ -10,7 +10,11 @@ import salesRoutes from "./routes/salesRoutes.js";
 import purchaseOrderRoutes from "./routes/purchaseOrderRoutes.js";
 import transferRoutes from "./routes/interBranchTransferRoutes.js";
 import alertsRoutes from "./routes/alertsRoutes.js";
-console.log("🔥 alertsRoutes imported into index.js");
+import reportsRoutes from "./routes/reportsRoutes.js";
+
+
+
+
 
 
 
@@ -52,6 +56,9 @@ app.use("/api/sales", salesRoutes);
 app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/alerts", alertsRoutes);
+app.use("/api/reports", reportsRoutes); 
+
+
 
 
 
