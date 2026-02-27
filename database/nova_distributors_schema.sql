@@ -196,10 +196,6 @@ INSERT INTO inter_branch_transfers
 VALUES (1, 2, 1, 5, CURDATE(), 'Requested');
 
 
-
-
-
-
 SELECT * FROM inter_branch_transfers ORDER BY transfer_date DESC;
 
 
@@ -215,6 +211,24 @@ CREATE TABLE alerts (
     FOREIGN KEY (branch_id) REFERENCES branches(branch_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
+
+CREATE TABLE reorder_recommendations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    branch_id INT NOT NULL,
+    product_id INT NOT NULL,
+    predicted_demand INT NOT NULL,
+    quantity_on_hand INT NOT NULL,
+    safety_stock INT NOT NULL,
+    recommended_reorder_quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+SELECT alert_id, is_read FROM alerts WHERE alert_id = 5;
+
+
+
+
+
 
 
 
