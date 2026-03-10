@@ -11,18 +11,9 @@ import purchaseOrderRoutes from "./routes/purchaseOrderRoutes.js";
 import transferRoutes from "./routes/interBranchTransferRoutes.js";
 import alertsRoutes from "./routes/alertsRoutes.js";
 import reportsRoutes from "./routes/reportsRoutes.js";
-
-
-
-
-
-
-
-
-
-
-
-
+import authRoutes from "./routes/authRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
+import orderRequestRoutes from "./routes/orderRequestRoutes.js";
 
 
 
@@ -57,14 +48,9 @@ app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/alerts", alertsRoutes);
 app.use("/api/reports", reportsRoutes); 
-
-
-
-
-
-
-
-
+app.use("/api/auth", authRoutes); 
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/order-requests", orderRequestRoutes);
 
 
 

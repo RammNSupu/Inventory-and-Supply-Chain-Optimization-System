@@ -3,7 +3,7 @@ import pandas as pd
 # Load cleaned dataset
 df = pd.read_csv("../data/processed/clean_sales_data.csv")
 
-print("🔹 Original dataset shape:", df.shape)
+print(" Original dataset shape:", df.shape)
 
 # Convert Date column to datetime
 df["date"] = pd.to_datetime(df["date"])
@@ -45,11 +45,11 @@ forecast_df.rename(columns={
     "seasonality": "seasonality"
 }, inplace=True)
 
-print("🔹 Forecast dataset shape:", forecast_df.shape)
-print("\n🔹 Sample rows:")
+print(" Forecast dataset shape:", forecast_df.shape)
+print("\n Sample rows:")
 print(forecast_df.head())
 
 # Save dataset
 forecast_df.to_csv("../data/processed/forecast_dataset.csv", index=False)
 
-print("\n✅ forecast_dataset.csv created successfully!")
+print("\n forecast_dataset.csv created successfully!")

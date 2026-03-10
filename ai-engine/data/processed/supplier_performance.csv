@@ -1,0 +1,5 @@
+supplier_id,price_score,delivery_days,delay_rate,defect_rate,reliability_score,,,,,,,,,
+1,85,3,0.05,0.02,92,,,,,,,,,
+2,78,5,0.1,0.04,80,,,,,,,,,
+3,90,2,0.02,0.01,96,,,,,,,,,
+4,70,6,0.15,0.06,75,,,,,,,,,

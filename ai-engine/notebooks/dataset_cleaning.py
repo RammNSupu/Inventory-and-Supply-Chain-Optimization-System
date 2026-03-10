@@ -1,13 +1,13 @@
 import pandas as pd
 
-# 1️⃣ Load dataset
+# Load dataset
 file_path = "../data/raw/sales_data.csv"
 df = pd.read_csv(file_path)
 
 print("Original columns:")
 print(df.columns)
 
-# 2️⃣ Rename columns to match your system
+# Rename columns to match your system
 df = df.rename(columns={
     "Date": "date",
     "Store ID": "store_id",
@@ -27,10 +27,10 @@ df = df.rename(columns={
     "Demand": "demand"
 })
 
-# 3️⃣ Convert date column to datetime
+# Convert date column to datetime
 df["date"] = pd.to_datetime(df["date"])
 
-# 4️⃣ Simulate Sri Lanka branches
+# 4️⃣ Simulate branches
 branch_mapping = {
     "S001": "Colombo",
     "S002": "Kandy",

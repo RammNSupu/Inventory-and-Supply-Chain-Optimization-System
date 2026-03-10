@@ -6,32 +6,23 @@ const router = express.Router();
 /**
  * GET inventory for a branch
  */
-router.get("/:branchId", async (req, res) => {
+router.get("/", async (req, res) => {
+  const { branch_id, role } = req.query;
+
   try {
-    const { branchId } = req.params;
+    let query = "SELECT * FROM inventory";
+    let params = [];
 
-    const [rows] = await db.query(
-      `
-      SELECT 
-        i.inventory_id,
-        i.branch_id,
-        i.product_id,
-        i.quantity_on_hand,
-        i.reorder_point,
-        i.safety_stock,
-        p.product_name,
-        p.sku,
-        p.unit
-      FROM inventory i
-      JOIN products p ON i.product_id = p.product_id
-      WHERE i.branch_id = ?
-      `,
-      [branchId]
-    );
+    // filter by branch_id
+    if (role === "BRANCH_STAFF") {
+      query += " WHERE branch_id = ?";
+      params.push(branch_id);
+    }
 
+    const [rows] = await db.query(query, params);
     res.json(rows);
+
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Error fetching inventory" });
   }
 });
@@ -43,7 +34,7 @@ router.post("/adjust", async (req, res) => {
   try {
     let { branch_id, product_id, quantity, type } = req.body;
 
-    // ✅ Validation
+    // Validation
     if (!branch_id || !product_id || !quantity || !type) {
       return res.status(400).json({ message: "Missing required fields" });
     }

@@ -1,12 +1,42 @@
 import express from "express";
 import db from "../config/db.js";
+import axios from "axios";
 
 const router = express.Router();
 
 /**
- * =====================================================
- * 1️⃣ CREATE PURCHASE ORDER (Admin)
- * =====================================================
+ * AI SUPPLIER RECOMMENDATION
+ * POST /api/purchase-orders/recommend-supplier
+ */
+router.post("/recommend-supplier", async (req, res) => {
+  const { product_id, order_quantity } = req.body;
+
+  try {
+
+    const aiResponse = await axios.post(
+      "http://127.0.0.1:5000/recommend-supplier-for-order",
+      {
+        product_id,
+        order_quantity
+      }
+    );
+
+    res.json(aiResponse.data);
+
+  } catch (error) {
+
+    console.error("AI supplier recommendation error:");
+    console.error(error.response?.data || error.message);
+
+    res.status(500).json({
+      message: "AI supplier recommendation failed"
+    });
+
+  }
+});
+
+/**
+ *  CREATE PURCHASE ORDER (Admin)
  * POST /api/purchase-orders
  */
 router.post("/", async (req, res) => {
@@ -50,9 +80,7 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * =====================================================
- * 2️⃣ VIEW ALL PURCHASE ORDERS (Admin)
- * =====================================================
+ * VIEW ALL PURCHASE ORDERS (Admin)
  * GET /api/purchase-orders
  */
 router.get("/", async (req, res) => {
@@ -67,9 +95,7 @@ router.get("/", async (req, res) => {
 });
 
 /**
- * =====================================================
- * 3️⃣ VIEW PURCHASE ORDERS BY BRANCH
- * =====================================================
+ * VIEW PURCHASE ORDERS BY BRANCH
  * GET /api/purchase-orders/branch/:branchId
  */
 router.get("/branch/:branchId", async (req, res) => {
@@ -87,9 +113,7 @@ router.get("/branch/:branchId", async (req, res) => {
 });
 
 /**
- * =====================================================
- * 4️⃣ VIEW PURCHASE ORDERS BY SUPPLIER
- * =====================================================
+ * VIEW PURCHASE ORDERS BY SUPPLIER
  * GET /api/purchase-orders/supplier/:supplierId
  */
 router.get("/supplier/:supplierId", async (req, res) => {
@@ -107,9 +131,7 @@ router.get("/supplier/:supplierId", async (req, res) => {
 });
 
 /**
- * =====================================================
- * 5️⃣ UPDATE PURCHASE ORDER STATUS
- * =====================================================
+ * UPDATE PURCHASE ORDER STATUS
  * PUT /api/purchase-orders/:id/status
  */
 router.put("/:id/status", async (req, res) => {

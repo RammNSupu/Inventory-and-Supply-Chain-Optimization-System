@@ -1,0 +1,31 @@
+Dataset Mapping Plan
+
+1. Branch Mapping:
+Store ID -> Branch ID
+S001 -> Colombo
+S002 -> Kandy
+S003 -> Galle
+
+2. Sales Mapping:
+Date -> sale_date
+Units Sold -> quantity_sold
+Price -> unit_price
+
+3. Inventory Mapping:
+Inventory Level -> quantity_on_hand
+
+4. Product Mapping:
+Product ID -> sku
+Category -> category
+
+5. ML Features:
+Price
+Discount
+Promotion
+Seasonality
+Weather Condition
+Competitor Pricing
+Epidemic
+
+Target:
+Demand

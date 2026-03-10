@@ -47,16 +47,21 @@ router.post("/", async (req, res) => {
 /**
  * GET — View sales by branch
  */
-router.get("/branch/:branchId", async (req, res) => {
-  const { branchId } = req.params;
+router.get("/", async (req, res) => {
+  const { branch_id, role } = req.query;
 
   try {
-    const [rows] = await db.query(
-      `SELECT * FROM sales WHERE branch_id = ? ORDER BY sale_date DESC`,
-      [branchId]
-    );
+    let query = "SELECT * FROM sales";
+    let params = [];
 
+    if (role === "BRANCH_STAFF") {
+      query += " WHERE branch_id = ?";
+      params.push(branch_id);
+    }
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
+
   } catch (error) {
     res.status(500).json({ message: "Error fetching sales" });
   }

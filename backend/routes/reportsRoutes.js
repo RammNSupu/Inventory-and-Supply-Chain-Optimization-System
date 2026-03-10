@@ -3,17 +3,14 @@ import db from "../config/db.js";
 
 const router = express.Router();
 
-/**
- * ================================
- * STEP 9.1 — BRANCH MONTHLY REPORT
- * ================================
+/**STEP 9.1 — BRANCH MONTHLY REPORT
  * GET /api/reports/branch/:branch_id/:month
  */
 router.get("/branch/:branch_id/:month", async (req, res) => {
   const { branch_id, month } = req.params;
 
   try {
-    // 1️⃣ Total sales revenue
+    // Total sales revenue
     const [salesResult] = await db.query(
       `
       SELECT 
@@ -25,7 +22,7 @@ router.get("/branch/:branch_id/:month", async (req, res) => {
       [branch_id, month]
     );
 
-    // 2️⃣ Top-selling products
+    // Top-selling products
     const [topProducts] = await db.query(
       `
       SELECT 
@@ -42,7 +39,7 @@ router.get("/branch/:branch_id/:month", async (req, res) => {
       [branch_id, month]
     );
 
-    // 3️⃣ Low stock summary
+    // Low stock summary
     const [lowStock] = await db.query(
       `
       SELECT 
@@ -76,16 +73,14 @@ router.get("/branch/:branch_id/:month", async (req, res) => {
 
 
 /**
- * =================================
- * STEP 9.2 — COMPANY-WIDE REPORT
- * =================================
+STEp COMPANY-WIDE REPORT
  * GET /api/reports/company/:month
  */
 router.get("/company/:month", async (req, res) => {
   const { month } = req.params;
 
   try {
-    // 1️⃣ Revenue per branch
+    // Revenue per branch
     const [branchRevenue] = await db.query(
       `
       SELECT 
@@ -100,7 +95,7 @@ router.get("/company/:month", async (req, res) => {
       [month]
     );
 
-    // 2️⃣ Top products company-wide
+    // Top products company-wide
     const [topProducts] = await db.query(
       `
       SELECT 

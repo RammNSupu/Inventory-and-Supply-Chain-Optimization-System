@@ -59,4 +59,41 @@ router.post("/", async (req, res) => {
 
 });
 
+
+/**
+ * DELETE product
+ */
+router.delete("/:id", async (req, res) => {
+
+  const { id } = req.params;
+
+  try {
+
+    // remove product from inventory
+    await db.query(
+      "DELETE FROM inventory WHERE product_id = ?",
+      [id]
+    );
+
+    // remove product from sales
+    await db.query(
+      "DELETE FROM sales WHERE product_id = ?",
+      [id]
+    );
+
+    // finally delete product
+    await db.query(
+      "DELETE FROM products WHERE product_id = ?",
+      [id]
+    );
+
+    res.json({ message: "Product deleted successfully" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+
+});
+
 export default router; 

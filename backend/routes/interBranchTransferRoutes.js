@@ -108,4 +108,67 @@ router.put("/:id/status", async (req, res) => {
   }
 });
 
+
+/**
+ * 5️⃣ AI Transfer Recommendation
+ */
+router.post("/transfer-recommendation", async (req, res) => {
+
+  
+  const { product_id, to_branch_id } = req.body;
+
+  try {
+    // 1️⃣ Find branches with excess stock for the product
+    const [branches] = await db.query(
+      `SELECT branch_id, quantity_on_hand
+       FROM inventory
+       WHERE product_id = ? AND branch_id != ?
+       ORDER BY quantity_on_hand DESC`,
+      [product_id, to_branch_id]
+    );
+
+    if (!branches.length) {
+      return res.status(200).json({ message: "No branch has excess stock" });
+    }
+
+    // 2️⃣ Pick the branch with highest quantity (simplest AI logic for now)
+    const from_branch = branches[0];
+
+    // 3️⃣ Calculate recommended quantity
+    const recommended_quantity = Math.min(
+      from_branch.quantity_on_hand - 20, // keep safety stock 20
+      50 // max transfer limit
+    );
+
+    if (recommended_quantity <= 0) {
+      return res.status(200).json({ message: "No transfer needed" });
+    }
+
+    // 4️⃣ Insert transfer request into inter_branch_transfers
+    const transfer_date = new Date().toISOString().slice(0, 19).replace("T", " ");
+    const [result] = await db.query(
+      `INSERT INTO inter_branch_transfers
+       (from_branch_id, to_branch_id, product_id, quantity, transfer_date, status)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [from_branch.branch_id, to_branch_id, product_id, recommended_quantity, transfer_date, "Pending"]
+    );
+
+    // 5️⃣ Return recommendation
+    res.json({
+      recommended_transfer: {
+        transfer_id: result.insertId,
+        from_branch_id: from_branch.branch_id,
+        to_branch_id,
+        product_id,
+        quantity: recommended_quantity,
+        ai_score: 0.85 // example AI confidence score
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error calculating AI transfer recommendation" });
+  }
+});
+
 export default router;
