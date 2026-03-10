@@ -13,6 +13,19 @@ const Sales = () => {
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
 
+  // -----------------------------
+  // AI DEMAND FORECAST STATES
+  // -----------------------------
+
+  const [forecastProduct, setForecastProduct] = useState("");
+  const [forecastPrice, setForecastPrice] = useState("");
+  const [forecastPromotion, setForecastPromotion] = useState(0);
+  const [forecastSeasonality, setForecastSeasonality] = useState("Summer");
+
+  const [predictedDemand, setPredictedDemand] = useState(null);
+  const [loadingForecast, setLoadingForecast] = useState(false);
+
+
   // Fetch products
   const fetchProducts = async () => {
     try {
@@ -45,6 +58,7 @@ const Sales = () => {
     fetchSales();
   }, []);
 
+
   // Auto fill price
   const handleProductChange = (id) => {
 
@@ -59,6 +73,75 @@ const Sales = () => {
     }
 
   };
+
+
+  // -----------------------------
+  // AI FORECAST PRODUCT SELECT
+  // -----------------------------
+
+  const handleForecastProductChange = (id) => {
+
+    setForecastProduct(id);
+
+    const selected = products.find(
+      p => p.product_id === parseInt(id)
+    );
+
+    if (selected) {
+      setForecastPrice(selected.unit_price);
+    }
+
+  };
+
+
+  // -----------------------------
+  // AI DEMAND FORECAST REQUEST
+  // -----------------------------
+
+  const getDemandForecast = async () => {
+
+    try {
+
+      setLoadingForecast(true);
+
+      const product = products.find(
+        p => p.product_id === parseInt(forecastProduct)
+      );
+
+      const response = await fetch(
+        "http://127.0.0.1:5000/predict-demand",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            price: Number(forecastPrice),
+            promotion: Number(forecastPromotion),
+            branch: user.branch_name || "Colombo",
+            product_id: product?.product_code || "P0001",
+            seasonality: forecastSeasonality
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPredictedDemand(data.predicted_demand);
+      } else {
+        alert(data.error);
+      }
+
+    } catch (error) {
+      console.error("AI forecast error:", error);
+      alert("AI prediction failed");
+    } finally {
+      setLoadingForecast(false);
+    }
+
+  };
+
 
   // Record sale
   const recordSale = async (e) => {
@@ -84,14 +167,14 @@ const Sales = () => {
 
     } catch (error) {
 
-  console.error("Sale error:", error.response?.data || error.message);
-  alert("Failed to record sale");
+      console.error("Sale error:", error.response?.data || error.message);
+      alert("Failed to record sale");
 
-}
-
-    
+    }
 
   };
+
+
 
   return (
 
@@ -147,7 +230,10 @@ const Sales = () => {
 
       </div>
 
-      {/* Sales Table */}
+
+
+      {/* SALES HISTORY */}
+
       <div style={styles.card}>
 
         <h3 style={styles.cardTitle}>Sales History</h3>
@@ -204,6 +290,107 @@ const Sales = () => {
 
       </div>
 
+
+
+      {/* -------------------------------- */}
+      {/* 🔥 AI DEMAND FORECAST PANEL */}
+      {/* -------------------------------- */}
+
+      <div style={styles.aiCard}>
+
+        <h3 style={styles.aiTitle}>
+          AI Demand Forecast
+        </h3>
+
+        <p style={styles.aiSub}>
+          Predict next month product demand using machine learning
+        </p>
+
+        <div style={styles.form}>
+
+          <select
+            style={styles.input}
+            value={forecastProduct}
+            onChange={(e) =>
+              handleForecastProductChange(e.target.value)
+            }
+          >
+
+            <option value="">Select Product</option>
+
+            {products.map(p => (
+              <option key={p.product_id} value={p.product_id}>
+                {p.product_name}
+              </option>
+            ))}
+
+          </select>
+
+
+                    <input
+            style={styles.input}
+            type="number"
+            value={forecastPrice}
+            readOnly
+            placeholder="Auto product price"
+          />
+
+
+                <select
+        style={styles.input}
+        value={forecastPromotion}
+        onChange={(e)=>setForecastPromotion(e.target.value)}
+      >
+  <option value="">Promotion Status</option>
+            <option value={0}>No Promotion</option>
+            <option value={1}>Promotion</option>
+          </select>
+
+
+          <select
+            style={styles.input}
+            value={forecastSeasonality}
+            onChange={(e)=>setForecastSeasonality(e.target.value)}
+          >
+            <option>Summer</option>
+            <option>Winter</option>
+            <option>Rainy</option>
+          </select>
+
+        </div>
+
+
+        <button
+          style={styles.aiButton}
+          onClick={getDemandForecast}
+        >
+          {loadingForecast ? "Predicting..." : "Get AI Forecast"}
+        </button>
+
+
+        {predictedDemand !== null && (
+
+          <div style={styles.resultBox}>
+
+            <h2>
+              Predicted Demand
+            </h2>
+
+            <div style={styles.resultNumber}>
+              {predictedDemand}
+            </div>
+
+            <p>
+              Units expected to be sold next month
+            </p>
+
+          </div>
+
+        )}
+
+      </div>
+
+
     </div>
 
   );
@@ -243,11 +430,15 @@ const styles = {
     flexWrap: "wrap"
   },
 
+
   input: {
-    padding: "10px",
-    borderRadius: "6px",
-    border: "1px solid #ccc"
-  },
+  padding: "10px",
+  borderRadius: "6px",
+  border: "1px solid #ccc",
+  backgroundColor: "#ffffff",
+  color: "#000000",
+  minWidth: "180px"
+},
 
   button: {
     padding: "10px 20px",
@@ -256,6 +447,53 @@ const styles = {
     border: "none",
     borderRadius: "6px",
     cursor: "pointer"
+  },
+
+
+  // --------------------
+  // AI STYLES
+  // --------------------
+
+  aiCard: {
+    background: "#0f172a",
+    color: "#fff",
+    padding: "30px",
+    borderRadius: "14px",
+    boxShadow: "0 6px 20px rgba(0,0,0,0.25)"
+  },
+
+  aiTitle: {
+    fontSize: "22px",
+    marginBottom: "5px"
+  },
+
+  aiSub: {
+    opacity: 0.8,
+    marginBottom: "20px"
+  },
+
+  aiButton: {
+    padding: "12px 24px",
+    background: "#22c55e",
+    border: "none",
+    borderRadius: "8px",
+    color: "#fff",
+    marginTop: "15px",
+    cursor: "pointer"
+  },
+
+  resultBox: {
+    marginTop: "25px",
+    padding: "20px",
+    background: "#1e293b",
+    borderRadius: "10px",
+    textAlign: "center"
+  },
+
+  resultNumber: {
+    fontSize: "42px",
+    fontWeight: "bold",
+    margin: "10px 0"
   },
 
   table: {
