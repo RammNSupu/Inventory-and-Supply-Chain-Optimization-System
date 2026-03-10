@@ -11,7 +11,7 @@ export default function Transfers() {
   // Load transfers from backend
   const loadTransfers = async () => {
     try {
-      const res = await api.get("/inter-branch-transfers");
+      const res = await api.get("/api/transfers");
       setTransfers(res.data);
     } catch (error) {
       console.error("Error loading transfers");
@@ -26,10 +26,13 @@ export default function Transfers() {
   const getTransferRecommendation = async () => {
   try {
 
-    const res = await api.post("/inter-branch-transfers/transfer-recommendation", {
-      product_id: productId,
-      to_branch_id: toBranchId
-    });
+  const res = await api.post(
+  "/api/transfers/transfer-recommendation",
+  {
+    product_id: productId,
+    to_branch_id: toBranchId   
+  }
+);
 
     if (res.data.recommended_transfer) {
       setRecommendation(res.data.recommended_transfer);
@@ -40,6 +43,22 @@ export default function Transfers() {
     console.error("AI transfer recommendation error", error);
   }
 };
+
+  // ✅ NEW FUNCTION — UPDATE TRANSFER STATUS
+  const updateTransferStatus = async (id, status) => {
+    try {
+
+      await api.put(`/api/transfers/${id}/status`, {
+        status: status
+      });
+
+      loadTransfers();
+
+    } catch (error) {
+      console.error("Error updating transfer status", error);
+    }
+  };
+
   return (
     <div className="p-6">
 
@@ -84,26 +103,36 @@ export default function Transfers() {
         </div>
 
         {recommendation && (
+  <div className="p-4 mt-4 bg-gray-100 rounded">
 
-          <div className="p-4 mt-4 bg-gray-100 rounded">
+    <p className="mb-2 font-semibold text-green-600">
+      ✅ AI Transfer Created Successfully
+    </p>
 
-            <p>
-              Transfer <b>{recommendation.quantity}</b> units
-            </p>
+    <p>
+      Transfer ID: <b>{recommendation.transfer_id}</b>
+    </p>
 
-            <p>
-              From Branch <b>{recommendation.from_branch_id}</b>
-              {" → "}
-              Branch <b>{recommendation.to_branch_id}</b>
-            </p>
+    <p>
+      Transfer <b>{recommendation.quantity}</b> units
+    </p>
 
-            <p>
-              AI Score: {recommendation.ai_score}
-            </p>
+    <p>
+      From Branch <b>{recommendation.from_branch_id}</b>
+      {" → "}
+      Branch <b>{recommendation.to_branch_id}</b>
+    </p>
 
-          </div>
+    <p>
+      Product ID: <b>{recommendation.product_id}</b>
+    </p>
 
-        )}
+    <p>
+      AI Confidence Score: <b>{recommendation.ai_score}</b>
+    </p>
+
+  </div>
+)}
 
       </div>
 
@@ -123,6 +152,7 @@ export default function Transfers() {
               <th className="p-3 text-left">Quantity</th>
               <th className="p-3 text-left">Date</th>
               <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Action</th>
 
             </tr>
           </thead>
@@ -146,6 +176,37 @@ export default function Transfers() {
                 <td className="p-3">{t.transfer_date}</td>
 
                 <td className="p-3">{t.status}</td>
+
+                {/* ✅ NEW ACTION COLUMN */}
+                <td className="p-3">
+
+                  {t.status === "Requested" && (
+
+                    <div className="flex gap-2">
+
+                      <button
+                        onClick={() =>
+                          updateTransferStatus(t.transfer_id, "Completed")
+                        }
+                        className="px-3 py-1 text-white bg-green-500 rounded"
+                      >
+                        Approve
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          updateTransferStatus(t.transfer_id, "Rejected")
+                        }
+                        className="px-3 py-1 text-white bg-red-500 rounded"
+                      >
+                        Reject
+                      </button>
+
+                    </div>
+
+                  )}
+
+                </td>
 
               </tr>
 

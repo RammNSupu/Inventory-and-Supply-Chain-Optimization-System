@@ -113,12 +113,12 @@ router.put("/:id/status", async (req, res) => {
  * 5️⃣ AI Transfer Recommendation
  */
 router.post("/transfer-recommendation", async (req, res) => {
-
-  
   const { product_id, to_branch_id } = req.body;
 
+  
+
   try {
-    // 1️⃣ Find branches with excess stock for the product
+    // 1️⃣ Find branches with excess stock
     const [branches] = await db.query(
       `SELECT branch_id, quantity_on_hand
        FROM inventory
@@ -131,26 +131,26 @@ router.post("/transfer-recommendation", async (req, res) => {
       return res.status(200).json({ message: "No branch has excess stock" });
     }
 
-    // 2️⃣ Pick the branch with highest quantity (simplest AI logic for now)
+    // 2️⃣ Pick branch with highest quantity
     const from_branch = branches[0];
 
     // 3️⃣ Calculate recommended quantity
     const recommended_quantity = Math.min(
-      from_branch.quantity_on_hand - 20, // keep safety stock 20
-      50 // max transfer limit
+      from_branch.quantity_on_hand - 20,
+      50
     );
 
     if (recommended_quantity <= 0) {
       return res.status(200).json({ message: "No transfer needed" });
     }
 
-    // 4️⃣ Insert transfer request into inter_branch_transfers
-    const transfer_date = new Date().toISOString().slice(0, 19).replace("T", " ");
+    // 4️⃣ Insert transfer request
+    const transfer_date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const [result] = await db.query(
       `INSERT INTO inter_branch_transfers
        (from_branch_id, to_branch_id, product_id, quantity, transfer_date, status)
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [from_branch.branch_id, to_branch_id, product_id, recommended_quantity, transfer_date, "Pending"]
+      [from_branch.branch_id, to_branch_id, product_id, recommended_quantity, transfer_date, "Requested"]
     );
 
     // 5️⃣ Return recommendation
@@ -161,7 +161,7 @@ router.post("/transfer-recommendation", async (req, res) => {
         to_branch_id,
         product_id,
         quantity: recommended_quantity,
-        ai_score: 0.85 // example AI confidence score
+        ai_score: 0.85
       }
     });
 
